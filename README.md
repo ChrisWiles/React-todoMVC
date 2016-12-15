@@ -1,4 +1,4 @@
-# React-todoMVC vs Redux-todoMVC
+# React-todoMVC
 
 It seemed that http://todomvc.com/ didn't have a good react example.
 
