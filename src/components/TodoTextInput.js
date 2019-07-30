@@ -11,41 +11,52 @@ export default class TodoTextInput extends Component {
   }
 
   state = {
-    text: this.props.text || ''
+    text: this.props.text || '',
+    newTodoPriority: '1'
   }
 
   handleSubmit = e => {
     const text = e.target.value.trim()
+    const priority = this.state.newTodoPriority;
     if (e.which === 13) {
-      this.props.onSave(text)
+      this.props.onSave(text, priority)
       if (this.props.newTodo) {
-        this.setState({text: ''})
+        this.setState({text: '', priority: '1'})
       }
     }
   }
+
+  handleSelect = e => this.setState({ newTodoPriority: e.target.value })
 
   handleChange = e => this.setState({text: e.target.value})
 
   handleBlur = e => {
     if (!this.props.newTodo) {
-      this.props.onSave(e.target.value)
+      this.props.onSave(e.target.value, this.state.newTodoPriority)
     }
   }
 
   render() {
     return (
-      <input className={
-        classnames({
-          edit: this.props.editing,
-          'new-todo': this.props.newTodo
-        })}
-        type="text"
-        placeholder={this.props.placeholder}
-        autoFocus="true"
-        value={this.state.text}
-        onBlur={this.handleBlur}
-        onChange={this.handleChange}
-        onKeyDown={this.handleSubmit} />
+      <div>
+        <input className={
+          classnames({
+            edit: this.props.editing,
+            'new-todo': this.props.newTodo
+          })}
+          type="text"
+          placeholder={this.props.placeholder}
+          autoFocus="true"
+          value={this.state.text}
+          onBlur={this.handleBlur}
+          onChange={this.handleChange}
+          onKeyDown={this.handleSubmit} />
+        <select class="new-todo-priority" onChange={this.handleSelect}>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select>
+      </div>
     )
   }
 }

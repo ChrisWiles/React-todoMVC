@@ -15,17 +15,16 @@ class App extends Component {
     super(props)
     this.state = {
       todos: initialState,
-      gameID: null,
-      player: 0
     }
   }
 
-  addTodo = (text) => {
+  addTodo = (text, priority) => {
     const todos = [
       {
         id: this.state.todos.reduce((maxId, todo) => Math.max(todo.id, maxId), -1) + 1,
         completed: false,
-        text: text
+        text: text,
+        priority: priority
       },
       ...this.state.todos
     ]
@@ -37,9 +36,9 @@ class App extends Component {
     this.setState({todos})
   }
 
-  editTodo = (id, text) => {
+  editTodo = (id, text, priority) => {
     const todos = this.state.todos.map(todo =>
-      todo.id === id ? {...todo, text} : todo
+      todo.id === id ? {...todo, text, priority} : todo
     )
     this.setState({todos})
   }

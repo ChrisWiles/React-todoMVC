@@ -3,9 +3,9 @@ import TodoTextInput from './TodoTextInput'
 
 const Header = ({addTodo}) => {
 
-  const handleSave = text => {
-    if (text.length !== 0) {
-      addTodo(text)
+  const handleSave = (text, priority) => {
+    if (text.length !== 0 && priority != null) {
+      addTodo(text, priority)
     }
   }
 
