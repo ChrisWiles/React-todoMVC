@@ -27,6 +27,11 @@ import Footer from './Footer'
      this.setState({ filter })
    }
 
+   orderByPriority = (is_descending) => {
+     const lambda = x => is_descending * -1 * x.priority
+     this.state.todos.sort(lambda)
+   }
+
    renderToggleAll(completedCount) {
      const { todos, actions } = this.props
      if (todos.length > 0) {
@@ -72,13 +77,15 @@ import Footer from './Footer'
          {this.renderToggleAll(completedCount)}
          <ul className="todo-list">
            {filteredTodos.map(todo =>
-              <div>
-                <span style="red">Priority: {todo.priority}</span>
-                <TodoItem key={todo.id} todo={todo} {...actions} />
-              </div>
+            <div>
+              <span style="red">Priority: {todo.priority}</span>
+              <TodoItem key={todo.id} todo={todo} {...actions} />
+            </div>
            )}
          </ul>
          {this.renderFooter(completedCount)}
+         <button onClick={this.orderByPriority(true)}>Order by Descending</button>
+         <button onClick={this.orderByPriority(false)}>Order by Ascending</button>
        </section>
      )
    }
