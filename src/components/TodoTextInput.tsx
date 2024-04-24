@@ -1,13 +1,20 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import React, { useState, KeyboardEvent, ChangeEvent } from "react";
 import classnames from "classnames";
 
-const TodoTextInput = ({ onSave, text: initialText, placeholder, editing, newTodo }) => {
+interface TodoTextInputProps {
+  onSave: (text: string) => void;
+  text?: string;
+  placeholder?: string;
+  editing?: boolean;
+  newTodo?: boolean;
+}
+
+const TodoTextInput = ({ onSave, text: initialText, placeholder, editing, newTodo }: TodoTextInputProps) => {
   const [text, setText] = useState(initialText || "");
 
-  const handleSubmit = (e) => {
-    const textValue = e.target.value.trim();
-    if (e.which === 13) {
+  const handleSubmit = (e: KeyboardEvent<HTMLInputElement>) => {
+    const textValue = e.currentTarget.value.trim();
+    if (e.key === 'Enter') {
       onSave(textValue);
       if (newTodo) {
         setText("");
@@ -15,9 +22,9 @@ const TodoTextInput = ({ onSave, text: initialText, placeholder, editing, newTod
     }
   };
 
-  const handleChange = (e) => setText(e.target.value);
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => setText(e.target.value);
 
-  const handleBlur = (e) => {
+  const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
     if (!newTodo) {
       onSave(e.target.value);
     }
@@ -38,14 +45,6 @@ const TodoTextInput = ({ onSave, text: initialText, placeholder, editing, newTod
       onKeyDown={handleSubmit}
     />
   );
-};
-
-TodoTextInput.propTypes = {
-  onSave: PropTypes.func.isRequired,
-  text: PropTypes.string,
-  placeholder: PropTypes.string,
-  editing: PropTypes.bool,
-  newTodo: PropTypes.bool,
 };
 
 export default TodoTextInput;
