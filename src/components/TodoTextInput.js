@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import classnames from 'classnames'
 
 export default class TodoTextInput extends Component {
@@ -41,7 +42,7 @@ export default class TodoTextInput extends Component {
         })}
         type="text"
         placeholder={this.props.placeholder}
-        autoFocus="true"
+        autoFocus={true}
         value={this.state.text}
         onBlur={this.handleBlur}
         onChange={this.handleChange}
