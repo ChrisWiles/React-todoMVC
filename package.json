@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "react-scripts": "^0.6.0"
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.2.79",
+    "react-scripts": "^0.6.0",
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "classnames": "^2.2.5",
@@ -16,5 +19,17 @@
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "test": "react-scripts test"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
