@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import Header from "./Header";
 import MainSection from "./MainSection";
 
+type Todo = {
+  text: string;
+  completed: boolean;
+  id: number;
+};
+
 const App = () => {
-  const [todos, setTodos] = useState([
+  const [todos, setTodos] = useState<Todo[]>([
     {
       text: "React ES6 TodoMVC",
       completed: false,
@@ -11,8 +17,8 @@ const App = () => {
     },
   ]);
 
-  const addTodo = (text) => {
-    const newTodo = {
+  const addTodo = (text: string) => {
+    const newTodo: Todo = {
       id: todos.reduce((maxId, todo) => Math.max(todo.id, maxId), -1) + 1,
       completed: false,
       text: text,
@@ -20,15 +26,15 @@ const App = () => {
     setTodos([newTodo, ...todos]);
   };
 
-  const deleteTodo = (id) => {
+  const deleteTodo = (id: number) => {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
-  const editTodo = (id, text) => {
+  const editTodo = (id: number, text: string) => {
     setTodos(todos.map((todo) => (todo.id === id ? { ...todo, text } : todo)));
   };
 
-  const completeTodo = (id) => {
+  const completeTodo = (id: number) => {
     setTodos(todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
   };
 
