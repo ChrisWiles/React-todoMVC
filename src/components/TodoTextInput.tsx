@@ -1,43 +1,50 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import classnames from 'classnames'
 
-export default class TodoTextInput extends Component {
-  state = {
-    text: this.props.text || ''
-  }
+interface TodoTextInputProps {
+  onSave: (text: string) => void;
+  text?: string;
+  placeholder?: string;
+  editing?: boolean;
+  newTodo?: boolean;
+}
 
-  handleSubmit = e => {
-    const text = e.target.value.trim()
+const TodoTextInput: React.FC<TodoTextInputProps> = (props) => {
+  const [text, setText] = useState(props.text || '');
+
+  const handleSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const input = e.target as HTMLInputElement;
+    const text = input.value.trim();
     if (e.which === 13) {
-      this.props.onSave(text)
-      if (this.props.newTodo) {
-        this.setState({text: ''})
+      props.onSave(text);
+      if (props.newTodo) {
+        setText('');
       }
     }
   }
 
-  handleChange = e => this.setState({text: e.target.value})
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value);
 
-  handleBlur = e => {
-    if (!this.props.newTodo) {
-      this.props.onSave(e.target.value)
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (!props.newTodo) {
+      props.onSave(e.target.value);
     }
   }
 
-  render() {
-    return (
-      <input className={
-        classnames({
-          edit: this.props.editing,
-          'new-todo': this.props.newTodo
-        })}
-        type="text"
-        placeholder={this.props.placeholder}
-        autoFocus="true"
-        value={this.state.text}
-        onBlur={this.handleBlur}
-        onChange={this.handleChange}
-        onKeyDown={this.handleSubmit} />
-    )
-  }
+  return (
+    <input className={
+      classnames({
+        edit: props.editing,
+        'new-todo': props.newTodo
+      })}
+      type="text"
+      placeholder={props.placeholder}
+      autoFocus={true}
+      value={text}
+      onBlur={handleBlur}
+      onChange={handleChange}
+      onKeyDown={handleSubmit} />
+  )
 }
+
+export default TodoTextInput;
