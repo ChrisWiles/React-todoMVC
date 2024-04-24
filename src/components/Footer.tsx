@@ -1,14 +1,23 @@
 import React from "react";
-import PropTypes from "prop-types";
 import classnames from "classnames";
 
-const FILTER_TITLES = {
+type FilterType = 'SHOW_ALL' | 'SHOW_ACTIVE' | 'SHOW_COMPLETED';
+
+const FILTER_TITLES: Record<FilterType, string> = {
   SHOW_ALL: "All",
   SHOW_ACTIVE: "Active",
   SHOW_COMPLETED: "Completed",
 };
 
-const Footer = ({ completedCount, activeCount, filter: selectedFilter, onClearCompleted, onShow }) => {
+interface FooterProps {
+  completedCount: number;
+  activeCount: number;
+  filter: FilterType;
+  onClearCompleted: () => void;
+  onShow: (filter: FilterType) => void;
+}
+
+const Footer = ({ completedCount, activeCount, filter: selectedFilter, onClearCompleted, onShow }: FooterProps) => {
   const renderTodoCount = () => {
     const itemWord = activeCount === 1 ? "item" : "items";
     return (
@@ -18,7 +27,7 @@ const Footer = ({ completedCount, activeCount, filter: selectedFilter, onClearCo
     );
   };
 
-  const renderFilterLink = (filter) => {
+  const renderFilterLink = (filter: FilterType) => {
     const title = FILTER_TITLES[filter];
     return (
       <a
@@ -42,7 +51,7 @@ const Footer = ({ completedCount, activeCount, filter: selectedFilter, onClearCo
   };
 
   const renderFilterList = () => {
-    return ["SHOW_ALL", "SHOW_ACTIVE", "SHOW_COMPLETED"].map((filter) => (
+    return (["SHOW_ALL", "SHOW_ACTIVE", "SHOW_COMPLETED"] as FilterType[]).map((filter) => (
       <li key={filter}>{renderFilterLink(filter)}</li>
     ));
   };
@@ -54,14 +63,6 @@ const Footer = ({ completedCount, activeCount, filter: selectedFilter, onClearCo
       {renderClearButton()}
     </footer>
   );
-};
-
-Footer.propTypes = {
-  completedCount: PropTypes.number.isRequired,
-  activeCount: PropTypes.number.isRequired,
-  filter: PropTypes.string.isRequired,
-  onClearCompleted: PropTypes.func.isRequired,
-  onShow: PropTypes.func.isRequired,
 };
 
 export default Footer;
