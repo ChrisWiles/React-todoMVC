@@ -13,6 +13,7 @@
     "react-scripts": "^5.0.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "typescript": "^5.4.5",
     "util": "^0.12.5"
   },
   "dependencies": {
@@ -26,7 +27,8 @@
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "test": "react-scripts test",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "type-check": "tsc --noEmit"
   },
   "browserslist": [
     ">0.2%",
