@@ -7,9 +7,13 @@
     "@babel/plugin-transform-private-property-in-object": "^7.24.1",
     "@types/prop-types": "^15.7.12",
     "@types/react": "^18.2.79",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
+    "eslint": "^9.1.1",
+    "eslint-plugin-react": "^7.34.1",
     "https-browserify": "^1.0.0",
     "prettier": "^3.2.5",
     "react-scripts": "^5.0.1",
@@ -30,7 +34,8 @@
     "eject": "react-scripts eject",
     "test": "react-scripts test",
     "format": "prettier --write .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --quiet"
   },
   "browserslist": [
     ">0.2%",
