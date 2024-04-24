@@ -1,16 +1,28 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 import classnames from "classnames";
 import TodoTextInput from "./TodoTextInput";
 
-const TodoItem = ({ todo, editTodo, deleteTodo, completeTodo }) => {
+type Todo = {
+  id: number;
+  text: string;
+  completed: boolean;
+};
+
+interface TodoItemProps {
+  todo: Todo;
+  editTodo: (id: number, text: string) => void;
+  deleteTodo: (id: number) => void;
+  completeTodo: (id: number) => void;
+}
+
+const TodoItem = ({ todo, editTodo, deleteTodo, completeTodo }: TodoItemProps) => {
   const [editing, setEditing] = useState(false);
 
   const handleDoubleClick = () => {
     setEditing(true);
   };
 
-  const handleSave = (id, text) => {
+  const handleSave = (id: number, text: string) => {
     if (text.length === 0) {
       deleteTodo(id);
     } else {
@@ -53,13 +65,6 @@ const TodoItem = ({ todo, editTodo, deleteTodo, completeTodo }) => {
       {element}
     </li>
   );
-};
-
-TodoItem.propTypes = {
-  todo: PropTypes.object.isRequired,
-  editTodo: PropTypes.func.isRequired,
-  deleteTodo: PropTypes.func.isRequired,
-  completeTodo: PropTypes.func.isRequired,
 };
 
 export default TodoItem;
