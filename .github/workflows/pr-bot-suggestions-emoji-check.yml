@@ -19,6 +19,7 @@ jobs:
         run: |
           PR_AUTHOR=$(jq -r '.issue.user.login' "$GITHUB_EVENT_PATH")
           echo "PR_AUTHOR=$PR_AUTHOR" >> $GITHUB_ENV
+          echo "PR Author: $PR_AUTHOR"
 
       - name: Find bot comment
         id: find-bot-comment
@@ -30,19 +31,26 @@ jobs:
       - name: Check for author acknowledgment
         run: |
           BOT_COMMENT_ID=${{ steps.find-bot-comment.outputs.comment-id }}
+          echo "Bot Comment ID: $BOT_COMMENT_ID"
           if [ -z "$BOT_COMMENT_ID" ]; then
             echo "No bot comment found, skipping."
             exit 0
           fi
 
-          COMMENTS_URL=$(jq -r '.issue.comments_url' "$GITHUB_EVENT_PATH")
-          COMMENTS=$(curl -s $COMMENTS_URL)
+          # Get the reactions for the bot's comment
+          REACTIONS_URL="https://api.github.com/repos/${{ github.repository }}/issues/comments/${BOT_COMMENT_ID}/reactions"
+          echo "Reactions URL: $REACTIONS_URL"
 
-          AUTHOR_COMMENT=$(echo "$COMMENTS" | jq -r --arg PR_AUTHOR "$PR_AUTHOR" --arg BOT_COMMENT "$BOT_COMMENT_ID" '.[] | select(.in_reply_to_id == ($BOT_COMMENT | tonumber)) | select(.user.login == $PR_AUTHOR).body')
+          REACTIONS=$(curl -s -H "Accept: application/vnd.github.squirrel-girl-preview+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" $REACTIONS_URL)
+          echo "Reactions: $REACTIONS"
 
-          if [[ "$AUTHOR_COMMENT" =~ .*(:\+1:|:\-1:|:smile:|:tada:|:rocket:|:eyes:).* ]]; then
-            echo "Emoji found in comment by PR author."
+          # Check if the PR author has reacted with any emoji
+          AUTHOR_REACTION=$(echo "$REACTIONS" | jq -r --arg PR_AUTHOR "$PR_AUTHOR" '.[] | select(.user.login == $PR_AUTHOR)')
+          echo "Author Reaction: $AUTHOR_REACTION"
+
+          if [ -n "$AUTHOR_REACTION" ]; then
+            echo "Emoji reaction found by PR author."
           else
-              echo "No emoji found in comment by PR author. Please add an emoji to acknowledge the suggestions. In the past, bugs found during QA were often already suggested to be fixed by the review bot but were ignored. While the review bot may have false positives, it is beneficial to review its suggestions to double-check for potential issues."
+            echo "No emoji reaction found by PR author. Please add an emoji to acknowledge the suggestions. In the past, bugs found during QA were often already suggested to be fixed by the review bot but were ignored. While the review bot may have false positives, it is beneficial to review its suggestions to double-check for potential issues."
             exit 1
           fi
