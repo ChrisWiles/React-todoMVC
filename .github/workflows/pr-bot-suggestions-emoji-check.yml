@@ -1,56 +1,25 @@
-# This GitHub Action workflow ensures that the author of a PR acknowledges PR bot suggestions by adding an emoji to their comments.
-# In the past, bugs found during QA were often already suggested to be fixed by the review bot but were ignored.
-# While the review bot may have false positives, it is beneficial to review its suggestions to double-check for potential issues.
-
-name: PR Bot Suggestions Emoji Check
+name: Check Reviewed Bot Suggestions Label
 
 on:
-  issue_comment:
-    types: [created, edited]
+  pull_request:
+    types: [labeled, unlabeled, synchronize]
 
 jobs:
-  check-emoji:
+  check-label:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get PR author
+      - name: Check for reviewed-bot-suggestions label
+        id: check-label
         run: |
-          PR_AUTHOR=$(jq -r '.issue.user.login' "$GITHUB_EVENT_PATH")
-          echo "PR_AUTHOR=$PR_AUTHOR" >> $GITHUB_ENV
-          echo "PR Author: $PR_AUTHOR"
+          LABEL_NAME="reviewed-bot-suggestions"
+          PR_LABELS=$(jq -r '.pull_request.labels[].name' "$GITHUB_EVENT_PATH")
 
-      - name: Find bot comment
-        id: find-bot-comment
-        uses: peter-evans/find-comment@v3
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          body-includes: "## PR Code Suggestions ✨"
-
-      - name: Check for author acknowledgment
-        run: |
-          BOT_COMMENT_ID=${{ steps.find-bot-comment.outputs.comment-id }}
-          echo "Bot Comment ID: $BOT_COMMENT_ID"
-          if [ -z "$BOT_COMMENT_ID" ]; then
-            echo "No bot comment found, skipping."
-            exit 0
-          fi
-
-          # Get the reactions for the bot's comment
-          REACTIONS_URL="https://api.github.com/repos/${{ github.repository }}/issues/comments/${BOT_COMMENT_ID}/reactions"
-          echo "Reactions URL: $REACTIONS_URL"
-
-          REACTIONS=$(curl -s -H "Accept: application/vnd.github.squirrel-girl-preview+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" $REACTIONS_URL)
-          echo "Reactions: $REACTIONS"
-
-          # Check if the PR author has reacted with any emoji
-          AUTHOR_REACTION=$(echo "$REACTIONS" | jq -r --arg PR_AUTHOR "$PR_AUTHOR" '.[] | select(.user.login == $PR_AUTHOR)')
-          echo "Author Reaction: $AUTHOR_REACTION"
-
-          if [ -n "$AUTHOR_REACTION" ]; then
-            echo "Emoji reaction found by PR author."
+          if echo "$PR_LABELS" | grep -q "$LABEL_NAME"; then
+            echo "Label $LABEL_NAME found."
           else
-            echo "No emoji reaction found by PR author. Please add an emoji to acknowledge the suggestions. In the past, bugs found during QA were often already suggested to be fixed by the review bot but were ignored. While the review bot may have false positives, it is beneficial to review its suggestions to double-check for potential issues."
+            echo "Label $LABEL_NAME not found. Please add the label reviewed-bot-suggestions to indicate you have reviewed the bot suggestions."
             exit 1
           fi
