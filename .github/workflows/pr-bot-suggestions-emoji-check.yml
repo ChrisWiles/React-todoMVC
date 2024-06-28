@@ -1,25 +1,127 @@
-name: Check Reviewed Bot Suggestions Label
+# This workflow ensures that PR authors have acknowledged and reviewed the code suggestions made by the PR agent by checking if the author has marked a self-review checkbox in the comments.
+# Since `issue_comment` cannot directly trigger a PR workflow, this must be done via the main branch workflow.
+# The workflow:
+# 1. Checks out the repository.
+# 2. Creates a check run for the pull request and sets it to "in_progress".
+# 3. Checks if any comment on the pull request contains a self-review checkbox that is either checked or unchecked.
+# 4. Updates the check run to "success" if the checkbox is checked.
+# 5. Updates the check run to "failure" if the checkbox is unchecked.
+# 6. Skips if the checkbox isn't found.
+
+name: Verify Author Self-Review
 
 on:
-  pull_request:
-    types: [labeled, unlabeled, synchronize]
+  issue_comment:
+    types: [created, edited, deleted]
 
 jobs:
-  check-label:
+  verify-author-self-review:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check for reviewed-bot-suggestions label
-        id: check-label
-        run: |
-          LABEL_NAME="reviewed-bot-suggestions"
-          PR_LABELS=$(jq -r '.pull_request.labels[].name' "$GITHUB_EVENT_PATH")
+      - name: Create Check Run
+        id: create_check
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let headSha;
+            if (context.payload.issue.pull_request) {
+              const pullRequest = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+              headSha = pullRequest.data.head.sha;
+            } else {
+              console.log('This is not a pull request comment. Skipping check.');
+              return;
+            }
 
-          if echo "$PR_LABELS" | grep -q "$LABEL_NAME"; then
-            echo "Label $LABEL_NAME found."
-          else
-            echo "Label $LABEL_NAME not found. Please add the label reviewed-bot-suggestions to indicate you have reviewed the bot suggestions."
-            exit 1
-          fi
+            const response = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Verify Author Self-Review',
+              head_sha: headSha,
+              status: 'in_progress',
+            });
+
+            console.log(`check_run_id=${response.data.id}`);
+            core.setOutput('check_run_id', response.data.id);
+
+      - name: Check for Author self-review in comments
+        id: check_bot_comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            let foundChecked = false;
+            let foundUnchecked = false;
+
+            comments.forEach(comment => {
+              if (!comment.deleted) {
+                const body = comment.body.trim();
+                if (body.includes('- [x]  **Author self-review**:')) {
+                  foundChecked = true;
+                } else if (body.includes('- [ ]  **Author self-review**:')) {
+                  foundUnchecked = true;
+                }
+              }
+            });
+
+            core.setOutput('foundChecked', foundChecked ? 'true' : 'false');
+            core.setOutput('foundUnchecked', foundUnchecked ? 'true' : 'false');
+
+      - name: Skip if No Checkbox Found
+        if: steps.check_bot_comment.outputs.foundUnchecked == 'false' && steps.check_bot_comment.outputs.foundChecked == 'false'
+        run: echo "Skipping as no self-review checkbox was found."
+
+      - name: Update Check Run as Success
+        if: steps.check_bot_comment.outputs.foundChecked == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const checkRunId = "${{ steps.create_check.outputs.check_run_id }}";
+            console.log(`Updating check run ID: ${checkRunId} to success`);
+
+            await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: checkRunId,
+              status: 'completed',
+              conclusion: 'success',
+              output: {
+                title: 'Verify Author Self-Review',
+                summary: 'Author self-review is checked.'
+              }
+            });
+
+      - name: Update Check Run as Failed
+        if: steps.check_bot_comment.outputs.foundUnchecked == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const checkRunId = "${{ steps.create_check.outputs.check_run_id }}";
+            console.log(`Updating check run ID: ${checkRunId} to failure`);
+
+            await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: checkRunId,
+              status: 'completed',
+              conclusion: 'failure',
+              output: {
+                title: 'Verify Author Self-Review',
+                summary: 'Author self-review is not checked or checkbox not found. Please check the self-review checkbox.'
+              }
+            });
