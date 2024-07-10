@@ -24,7 +24,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(JSON.stringify(context.payload, null, 2));
+            // console.log(JSON.stringify(context.payload, null, 2));
             const issue_number = context.payload.pull_request ? context.payload.pull_request.number : context.payload.issue.number;
 
             // Get the pull request details if this is an issue_comment event
@@ -37,6 +37,7 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: issue_number,
               });
+              console.log(JSON.stringify(pullRequest, null, 2));
               ref = pullRequest.head.sha;
             }
 
