@@ -1,5 +1,6 @@
 # This workflow ensures that PR authors have acknowledged and reviewed the code suggestions made by the PR agent
 # by checking if the author has marked a self-review checkbox in the comments.
+# ugh
 
 name: Verify Author Self-Review
 
