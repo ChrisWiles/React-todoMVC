@@ -25,9 +25,20 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             console.log(JSON.stringify(context.payload, null, 2));
-            const isPullRequest = context.payload.pull_request !== undefined;
-            const issue_number = isPullRequest ? context.payload.pull_request.number : context.payload.issue.number;
-            const ref = isPullRequest ? context.payload.pull_request.head.sha : context.payload.issue.pull_request.head.sha;
+            const issue_number = context.payload.pull_request ? context.payload.pull_request.number : context.payload.issue.number;
+
+            // Get the pull request details if this is an issue_comment event
+            let ref = '';
+            if (context.payload.pull_request) {
+              ref = context.payload.pull_request.head.sha;
+            } else {
+              const { data: pullRequest } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: issue_number,
+              });
+              ref = pullRequest.head.sha;
+            }
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
