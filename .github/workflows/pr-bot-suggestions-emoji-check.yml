@@ -1,12 +1,8 @@
-# This workflow ensures that PR authors have acknowledged and reviewed the code suggestions made by the PR agent
-# by checking if the author has marked a self-review checkbox in the comments.
-
 name: Verify Author Self-Review
 
 on:
   pull_request:
     types: [opened, synchronize]
-  # Since `issue_comment` cannot directly trigger a PR workflow, this must be done via the main branch workflow.
   issue_comment:
     types: [edited]
 
@@ -23,9 +19,22 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(JSON.stringify(context.payload, null, 2));
             const issue_number = context.payload.pull_request ? context.payload.pull_request.number : context.payload.issue.number;
-            const ref = context.payload.pull_request ? context.payload.pull_request.head.sha : context.payload.issue.pull_request.head.sha;
+
+            let ref = '';
+            if (context.payload.pull_request) {
+              ref = context.payload.pull_request.head.sha;
+            } else {
+              const { data: pullRequest } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: issue_number,
+              });
+              ref = pullRequest.head.sha;
+            }
+
+            console.log(`Pull Request Number: ${issue_number}`);
+            console.log(`HEAD SHA: ${ref}`);
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
