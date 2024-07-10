@@ -24,13 +24,11 @@ jobs:
             let ref = '';
             if (context.payload.pull_request) {
               ref = context.payload.pull_request.head.sha;
+            } else if (context.payload.issue && context.payload.issue.pull_request) {
+              ref = context.sha;
             } else {
-              const { data: pullRequest } = await github.rest.pulls.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: issue_number,
-              });
-              ref = pullRequest.head.sha;
+              console.log('This comment is not on a pull request.');
+              return;
             }
 
             console.log(`Pull Request Number: ${issue_number}`);
