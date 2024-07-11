@@ -3,6 +3,8 @@
 
 name: Verify Author Self-Review
 
+# test
+
 on:
   # Since `issue_comment` cannot directly trigger a PR workflow, this must be done via the main branch workflow.
   issue_comment:
@@ -46,7 +48,6 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: issue_number,
                 event: 'APPROVE',
-                body: 'Self-review checkbox is checked. Approving the PR.'
               });
               console.log('Pull request approved.');
             }
