@@ -1,7 +1,7 @@
 # This workflow ensures that PR authors have acknowledged and reviewed the code suggestions made by the PR agent
 # by checking if the author has marked a self-review checkbox in the comments and approves the PR if it is checked.
 
-name: Verify Author Self-Review
+name: Verify Author Self-Review!
 
 on:
   # Since `issue_comment` cannot directly trigger a PR workflow, this must be done via the main branch workflow.
