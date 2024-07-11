@@ -1,8 +1,10 @@
+# This workflow ensures that PR authors have acknowledged and reviewed the code suggestions made by the PR agent
+# by checking if the author has marked a self-review checkbox in the comments and approves the PR if it is checked.
+
 name: Verify Author Self-Review
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  # Since `issue_comment` cannot directly trigger a PR workflow, this must be done via the main branch workflow.
   issue_comment:
     types: [edited]
 
@@ -11,28 +13,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check for Author self-review in comments and Create or Update Check Run
+      - name: Check for Author self-review in comments and Approve PR
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue_number = context.payload.pull_request ? context.payload.pull_request.number : context.payload.issue.number;
+            const issue_number = context.payload.issue.number;
 
-            let ref = '';
-            if (context.payload.pull_request) {
-              ref = context.payload.pull_request.head.sha;
-            } else if (context.payload.issue && context.payload.issue.pull_request) {
-              ref = context.sha;
-            } else {
+            if (!context.payload.issue.pull_request) {
               console.log('This comment is not on a pull request.');
               return;
             }
 
             console.log(`Pull Request Number: ${issue_number}`);
-            console.log(`HEAD SHA: ${ref}`);
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -40,64 +33,20 @@ jobs:
               issue_number: issue_number
             });
 
-            let foundChecked = false;
-            let foundUnchecked = false;
+            const foundChecked = comments.some(comment =>
+              comment.body.trim().includes('- [x]  **Author self-review**:')
+            );
 
-            comments.forEach(comment => {
-              if (!comment.deleted) {
-                const body = comment.body.trim();
-                if (body.includes('- [x]  **Author self-review**:')) {
-                  foundChecked = true;
-                } else if (body.includes('- [ ]  **Author self-review**:')) {
-                  foundUnchecked = true;
-                }
-              }
-            });
+            console.log(`foundChecked: ${foundChecked}`);
 
-            console.log(`foundChecked: ${foundChecked}, foundUnchecked: ${foundUnchecked}`);
-
-            const { data: checkRuns } = await github.rest.checks.listForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: ref,
-            });
-
-            let checkRun = checkRuns.check_runs.find(run => run.name === 'Verify Author Self-Review' && run.head_sha === ref);
-
-            const status = 'completed';
-            let conclusion = 'failure';
-            let summary = 'Author self-review is not checked. Please check the self-review checkbox in the Bot Review comment.';
-
+            // Approve the pull request if the self-review is checked
             if (foundChecked) {
-              conclusion = 'success';
-              summary = 'Author self-review is checked.';
-            }
-
-            if (!checkRun) {
-              await github.rest.checks.create({
+              await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                name: 'Verify Author Self-Review',
-                head_sha: ref,
-                status: status,
-                conclusion: conclusion,
-                output: {
-                  title: 'Verify Author Self-Review',
-                  summary: summary
-                }
+                pull_number: issue_number,
+                event: 'APPROVE',
+                body: 'Self-review checkbox is checked. Approving the PR.'
               });
-              console.log('Check run created.');
-            } else {
-              await github.rest.checks.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                check_run_id: checkRun.id,
-                status: status,
-                conclusion: conclusion,
-                output: {
-                  title: 'Verify Author Self-Review',
-                  summary: summary
-                }
-              });
-              console.log('Check run updated.');
+              console.log('Pull request approved.');
             }
