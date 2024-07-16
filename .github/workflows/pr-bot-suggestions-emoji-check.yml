@@ -1,7 +1,7 @@
 # This workflow ensures that PR authors have acknowledged and reviewed the code suggestions made by the PR agent
 # by checking if the author has marked a self-review checkbox in the comments and approves the PR if it is checked.
 
-name: Verify Author Self-Review!
+name: Verify Author Self-Review
 
 on:
   # Since `issue_comment` cannot directly trigger a PR workflow, this must be done via the main branch workflow.
@@ -39,8 +39,29 @@ jobs:
 
             console.log(`foundChecked: ${foundChecked}`);
 
-            // Approve the pull request if the self-review is checked
             if (foundChecked) {
+              // Check if the PR has already been approved by kojo-bot
+              const { data: reviews } = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: issue_number
+              });
+
+              console.log('Reviewers:');
+              reviews.forEach(review => {
+                console.log(`- ${review.user.login} (State: ${review.state})`);
+              });
+
+              const botApproval = reviews.find(review =>
+                review.user.login === 'kojo-bot' && review.state === 'APPROVED'
+              );
+
+              if (botApproval) {
+                console.log('Pull request has already been approved by kojo-bot. Skipping approval.');
+                return;
+              }
+
+              // Approve the pull request if the self-review is checked and not already approved
               await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
