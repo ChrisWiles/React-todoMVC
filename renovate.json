@@ -1,26 +1,22 @@
 {
   "extends": ["config:recommended"],
-  "schedule": ["first day of the month"],
   "rangeStrategy": "pin",
   "packageRules": [
     {
       "matchDepTypes": ["devDependencies"],
       "groupName": "all minor devDependencies",
-      "schedule": ["first day of the month"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": false
     },
     {
       "matchDepTypes": ["devDependencies"],
       "groupName": "all major devDependencies",
-      "schedule": ["first day of the month"],
       "matchUpdateTypes": ["major"],
       "automerge": false
     },
     {
       "matchDepTypes": ["dependencies"],
       "groupName": "all dependencies",
-      "schedule": ["every 3 months on the first day of the month"],
       "matchUpdateTypes": ["minor", "patch", "major"],
       "automerge": false
     }
