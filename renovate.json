@@ -1,0 +1,49 @@
+{
+  "extends": ["config:recommended"],
+  "rangeStrategy": "pin",
+  "packageRules": [
+    {
+      "groupName": "all minor and patch devDependencies",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "groupName": "all major devDependencies",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "groupName": "all minor and patch dependencies",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "groupName": "all major dependencies",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "automerge": false
+    }
+  ],
+  "ignoreDeps": [
+    "@intercom/intercom-react-native",
+    "@shopify/restyle",
+    "aws-amplify",
+    "eslint",
+    "eslint-plugin-sonarjs",
+    "jwt-decode",
+    "jest-expo",
+    "react-native-image-viewing"
+  ],
+  "prCreation": "immediate",
+  "automerge": false,
+  "branchConcurrentLimit": 50,
+  "dependencyDashboard": true
+}
