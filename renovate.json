@@ -1,25 +1,27 @@
 {
   "extends": ["config:recommended"],
-  "schedule": ["before 5am on the first day of the month"],
+  "schedule": ["first day of the month"],
   "rangeStrategy": "pin",
   "packageRules": [
     {
       "matchDepTypes": ["devDependencies"],
-      "groupName": "all devDependencies",
-      "schedule": ["before 5am on the first day of the month"],
+      "groupName": "all minor devDependencies",
+      "schedule": ["first day of the month"],
       "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "all major devDependencies",
+      "schedule": ["first day of the month"],
+      "matchUpdateTypes": ["major"],
       "automerge": false
     },
     {
       "matchDepTypes": ["dependencies"],
       "groupName": "all dependencies",
-      "schedule": ["before 5am on the first day of the month"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": false
-    },
-    {
-      "matchUpdateTypes": ["major"],
-      "groupName": "major updates",
+      "schedule": ["every 3 months on the first day of the month"],
+      "matchUpdateTypes": ["minor", "patch", "major"],
       "automerge": false
     }
   ],
