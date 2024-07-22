@@ -3,32 +3,23 @@
   "rangeStrategy": "pin",
   "packageRules": [
     {
-      "groupName": "all minor and patch devDependencies",
+      "groupName": "all devDependencies",
       "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchUpdateTypes": ["minor", "patch", "major"],
+      "schedule": ["before 5am on the first day of the month"],
       "automerge": false
     },
     {
-      "groupName": "all major devDependencies",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["major"],
-      "automerge": false
-    },
-    {
-      "groupName": "all minor and patch dependencies",
+      "groupName": "all dependencies",
       "matchDepTypes": ["dependencies"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": false
-    },
-    {
-      "groupName": "all major dependencies",
-      "matchDepTypes": ["dependencies"],
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": ["minor", "patch", "major"],
+      "schedule": ["every 3 months on the first day of the month"],
       "automerge": false
     },
     {
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"],
+      "schedule": ["before 5am on the first day of the month"],
       "automerge": false
     }
   ],
