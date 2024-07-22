@@ -1,0 +1,38 @@
+{
+  "extends": ["config:recommended"],
+  "schedule": ["before 5am on the first day of the month"],
+  "rangeStrategy": "pin",
+  "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "all devDependencies",
+      "schedule": ["before 5am on the first day of the month"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "matchDepTypes": ["dependencies"],
+      "groupName": "all dependencies",
+      "schedule": ["before 5am on the first day of the month"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "groupName": "major updates",
+      "automerge": false
+    }
+  ],
+  "ignoreDeps": [
+    "@intercom/intercom-react-native",
+    "@shopify/restyle",
+    "aws-amplify",
+    "eslint",
+    "eslint-plugin-sonarjs",
+    "jwt-decode",
+    "jest-expo",
+    "react-native-image-viewing"
+  ],
+  "prCreation": "immediate",
+  "automerge": false
+}
