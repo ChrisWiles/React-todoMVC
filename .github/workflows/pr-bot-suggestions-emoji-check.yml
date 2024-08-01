@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check for Author self-review in comments and Approve PR
+      - name: Check for Author self-review or No Code Suggestions and Approve PR
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -37,10 +37,15 @@ jobs:
               comment.body.trim().includes('- [x]  **Author self-review**:')
             );
 
-            console.log(`foundChecked: ${foundChecked}`);
+            const noSuggestionsFound = comments.some(comment =>
+              comment.user.login === 'github-actions[bot]' && comment.body.includes('No code suggestions found for the PR.')
+            );
 
-            if (foundChecked) {
-              // Check if the PR has already been approved by kojo-bot
+            console.log(`foundChecked: ${foundChecked}`);
+            console.log(`noSuggestionsFound: ${noSuggestionsFound}`);
+
+            if (foundChecked || noSuggestionsFound) {
+              // Check if the PR has already been approved by github-actions[bot]
               const { data: reviews } = await github.rest.pulls.listReviews({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -57,11 +62,11 @@ jobs:
               );
 
               if (botApproval) {
-                console.log('Pull request has already been approved by kojo-bot. Skipping approval.');
+                console.log('Pull request has already been approved by github-actions[bot]. Skipping approval.');
                 return;
               }
 
-              // Approve the pull request if the self-review is checked and not already approved
+              // Approve the pull request if the self-review is checked or no suggestions found, and not already approved
               await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
