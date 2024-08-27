@@ -8,12 +8,13 @@ on:
 jobs:
   ota_release:
     name: EAS Update
-    if: |
-      ${{ startsWith(github.event.head_commit.message, 'release(OTA): v') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Log Commit Message
+        run: echo ${{ github.event.head_commit.message }}
 
       - name: Get Version from package.json
         id: get_version
