@@ -8,28 +8,30 @@ on:
 jobs:
   ota_release:
     name: EAS Update
-    if: ${{ startsWith(github.event.head_commit.message, 'release(OTA)') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get Version from package.json
-        id: get_version
-        run: |
-          VERSION=$(node -p -e "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Log Commit Message
+        run: echo ${{ github.event.head_commit.message }}
 
-      - name: Create Git Tag
-        run: |
-          git tag v${{ steps.get_version.outputs.version }}
-          git push origin v${{ steps.get_version.outputs.version }}
+    #   - name: Get Version from package.json
+    #     id: get_version
+    #     run: |
+    #       VERSION=$(node -p -e "require('./package.json').version")
+    #       echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Install GitHub CLI
-        run: sudo apt-get install -y gh
+    #   - name: Create Git Tag
+    #     run: |
+    #       git tag v${{ steps.get_version.outputs.version }}
+    #       git push origin v${{ steps.get_version.outputs.version }}
 
-      - name: Create GitHub Release with Auto-Generated Notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create v${{ steps.get_version.outputs.version }} --generate-notes
+    #   - name: Install GitHub CLI
+    #     run: sudo apt-get install -y gh
+
+    #   - name: Create GitHub Release with Auto-Generated Notes
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     run: |
+    #       gh release create v${{ steps.get_version.outputs.version }} --generate-notes
