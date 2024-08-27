@@ -8,8 +8,7 @@ on:
 jobs:
   ota_release:
     name: EAS Update
-    if: |
-      ${{ startsWith(github.event.head_commit.message, 'release(OTA): v') }}
+    if: ${{ startsWith(github.event.head_commit.message, 'release(OTA)') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
