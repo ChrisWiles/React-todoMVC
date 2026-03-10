@@ -3,21 +3,23 @@
   "rangeStrategy": "pin",
   "packageRules": [
     {
+      "groupName": "all devDependencies",
       "matchDepTypes": ["devDependencies"],
-      "groupName": "all minor devDependencies",
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": false
-    },
-    {
-      "matchDepTypes": ["devDependencies"],
-      "groupName": "all major devDependencies",
-      "matchUpdateTypes": ["major"],
-      "automerge": false
-    },
-    {
-      "matchDepTypes": ["dependencies"],
-      "groupName": "all dependencies",
       "matchUpdateTypes": ["minor", "patch", "major"],
+      "schedule": ["before 5am on the first day of the month"],
+      "automerge": false
+    },
+    {
+      "groupName": "all dependencies",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor", "patch", "major"],
+      "schedule": ["every 3 months on the first day of the month"],
+      "automerge": false
+    },
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "schedule": ["before 5am on the first day of the month"],
       "automerge": false
     }
   ],
@@ -32,5 +34,7 @@
     "react-native-image-viewing"
   ],
   "prCreation": "immediate",
-  "automerge": false
+  "automerge": false,
+  "branchConcurrentLimit": 50,
+  "dependencyDashboard": true
 }
