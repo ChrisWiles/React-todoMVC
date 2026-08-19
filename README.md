@@ -1,3 +1,5 @@
+
+
 # React-todoMVC
 
 This project is an implementation of the TodoMVC application using React with ES6/ES7 syntax, bootstrapped with create-react-app.
@@ -20,7 +22,7 @@ To run the application in development mode:
 yarn start
 ```
 
-This will start the development server and open the application in your default web browser.
+This will start the development server without opening the application in your default web browser.
 
 ## Building for Production
 
